@@ -1,5 +1,18 @@
 # 摄像头数据采集、切片处理
 
+```go
+log.SetLevel(log.DebugLevel)
+log.SetFormatter(&nested.Formatter{
+TimestampFormat: "2006-01-02 15:04:05",
+})
+goutil.ConfigInit("./conf.ini")
+stream := video2.GetStream("demo")
+basePath := goutil.GetSystemValue("output_base_dir")
+manager := video2.NewStreamManager(basePath, 20)
+manager.Add(stream)
+manager.Run()
+```
+
 ## 基于HLS点播功能的数据采集
 
 
