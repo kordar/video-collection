@@ -2,10 +2,10 @@ package strategy
 
 import (
 	"fmt"
+	"github.com/kordar/video-collection/retry"
 	log "github.com/sirupsen/logrus"
 	"github.com/xfrr/goffmpeg/transcoder"
 	"path"
-	"videosys/retry"
 )
 
 type Strategy interface {

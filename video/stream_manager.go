@@ -1,8 +1,8 @@
 package video
 
 import (
+	"github.com/kordar/video-collection/strategy"
 	log "github.com/sirupsen/logrus"
-	"videosys/strategy"
 )
 
 var (

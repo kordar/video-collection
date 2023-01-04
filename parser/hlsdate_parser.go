@@ -3,10 +3,10 @@ package parser
 import (
 	"errors"
 	"github.com/etherlabsio/go-m3u8/m3u8"
+	"github.com/kordar/video-collection/util"
 	log "github.com/sirupsen/logrus"
 	"path"
 	"time"
-	"videosys/util"
 )
 
 var (

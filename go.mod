@@ -1,4 +1,4 @@
-module videosys
+module github.com/kordar/video-collection
 
 go 1.16
 

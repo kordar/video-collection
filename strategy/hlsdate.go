@@ -1,10 +1,10 @@
 package strategy
 
 import (
+	"github.com/kordar/video-collection/util"
 	"path"
 	"strconv"
 	"time"
-	"videosys/util"
 )
 
 // HlsDatetime 通过时间配置切割

@@ -2,7 +2,7 @@ package video
 
 import (
 	"github.com/kordar/goutil"
-	strategy2 "videosys/strategy"
+	strategy2 "github.com/kordar/video-collection/strategy"
 )
 
 func GetStream(section string) strategy2.Strategy {
