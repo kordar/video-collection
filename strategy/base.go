@@ -129,6 +129,7 @@ func (b *BaseStrategy) Refresh() {
 
 func (b *BaseStrategy) Stop() {
 	err := b.GetTrans().Stop()
+	b.GetRetryConfig().Exit()
 	if err != nil {
 		log.Errorln(err)
 		return

@@ -98,5 +98,6 @@ func (m *StreamManager) Stop(id string) {
 		}
 	}()
 
+	m.streams[id].GetStatus()
 	m.streams[id].Stop()
 }

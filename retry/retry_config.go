@@ -24,7 +24,7 @@ func (c *Config) Refresh() {
 }
 
 func (c *Config) Clear() {
-	if c.Status != 0 {
+	if c.Status != 0 && c.Status != -1 {
 		c.Status = 0
 		c.RefreshTime = time.Now()
 		c.times = 0
@@ -32,12 +32,22 @@ func (c *Config) Clear() {
 }
 
 func (c *Config) End() {
-	c.Status = 1
+	if c.Status != -1 {
+		c.Status = 1
+	}
+	c.RefreshTime = time.Now()
+}
+
+func (c *Config) Exit() {
+	c.Status = -1
 	c.RefreshTime = time.Now()
 }
 
 func (c *Config) GetStatus() string {
 	s := c.GetStatus2()
+	if "exit" == s {
+		return "exit"
+	}
 	if "restart" == s {
 		c.times += 1
 		if c.MaxRetryTimes > 0 && c.times > c.MaxRetryTimes {
@@ -56,6 +66,10 @@ func (c *Config) GetStatus() string {
 func (c *Config) GetStatus2() string {
 	if c.Status == 0 {
 		return "run"
+	}
+
+	if c.Status == -1 {
+		return "exit"
 	}
 
 	s := time.Now().Unix() - c.RefreshTime.Unix()
