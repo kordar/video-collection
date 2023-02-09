@@ -29,6 +29,8 @@ type BaseStrategy struct {
 	ProcessName           string
 	RestartProcessSeconds int64
 	ProgressCallback      func(models.Progress, *BaseStrategy)
+	BeforeCallback        func(strategy *BaseStrategy)
+	AfterCallback         func(strategy *BaseStrategy)
 }
 
 func NewBaseStrategy(ID string, input string, output string, prefix string, retrySeconds int64, maxRetryTimes int, restartProcessSeconds int64) *BaseStrategy {
@@ -83,6 +85,10 @@ func (b *BaseStrategy) Execute() error {
 	log.Debugln(b.GetTrans().GetCommand())
 	log.Infoln(fmt.Sprintf("服务(%v)启动: %s -> %s", b.ID, b.Input, b.Output))
 
+	if b.BeforeCallback != nil {
+		b.BeforeCallback(b)
+	}
+
 	// Start transcoder process without checking progress
 	done := b.GetTrans().Run(true)
 
@@ -104,6 +110,11 @@ func (b *BaseStrategy) Execute() error {
 	err := <-done
 	WaitRestartHandler.Clear(b)
 	b.GetRetryConfig().End()
+
+	if b.AfterCallback != nil {
+		b.AfterCallback(b)
+	}
+
 	log.Warningln(fmt.Sprintf("服务(%v)结束！！！", b.ID))
 	return err
 }
