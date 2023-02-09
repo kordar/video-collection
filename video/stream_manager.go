@@ -42,6 +42,7 @@ func (m *StreamManager) Add(s strategy.Strategy) {
 
 func (m *StreamManager) Run() {
 	go func() {
+		strategy.WaitRestartHandler.Run()
 		for {
 			id := <-m.buffer
 			state := m.status[id]
