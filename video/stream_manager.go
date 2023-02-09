@@ -85,3 +85,18 @@ func (m *StreamManager) start(id string) {
 		delete(m.streams, id)
 	}
 }
+
+// Stop 停止Progress
+func (m *StreamManager) Stop(id string) {
+	if m.streams[id] == nil {
+		return
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			log.Errorln(r)
+		}
+	}()
+
+	m.streams[id].Stop()
+}
