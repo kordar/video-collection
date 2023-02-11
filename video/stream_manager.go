@@ -37,6 +37,10 @@ func (m *StreamManager) Add(s strategy.Strategy) {
 		m.streams[id] = s
 		m.status[id] = ReadingStatus
 		m.buffer <- id
+	} else {
+		// 否则刷新流配置
+		m.streams[id] = s
+		m.streams[id].Refresh()
 	}
 }
 
