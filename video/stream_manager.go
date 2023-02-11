@@ -37,11 +37,13 @@ func (m *StreamManager) Add(s strategy.Strategy) {
 		m.streams[id] = s
 		m.status[id] = ReadingStatus
 		m.buffer <- id
-	} else {
-		// 否则刷新流配置
-		m.streams[id] = s
-		m.streams[id].Refresh()
 	}
+	// TODO 该处逻辑将导致程序托管，更新配置需要关闭id对应的progress再开启
+	//else {
+	//	// 否则刷新流配置
+	//	m.streams[id] = s
+	//	m.streams[id].Refresh()
+	//}
 }
 
 func (m *StreamManager) Run() {
