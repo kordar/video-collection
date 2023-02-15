@@ -1,4 +1,4 @@
-package strategy
+package command
 
 import (
 	"github.com/kordar/video-collection/util"
@@ -7,23 +7,25 @@ import (
 	"time"
 )
 
-// HlsDatetime 通过时间配置切割
-type HlsDatetime struct {
+// HlsDatetimeCommand 通过时间配置切割
+type HlsDatetimeCommand struct {
+	OutPutDir   string
 	HlsTime     int // 视频采集的间隔，单位秒
 	HlsListSize int // 点播清单的最大分片数量
-	*BaseStrategy
+	*BaseCommand
 }
 
-func NewHlsDatetime(hlsTime int, hlsListSize int, strategy *BaseStrategy) *HlsDatetime {
-	return &HlsDatetime{
-		HlsTime:      hlsTime,
-		HlsListSize:  hlsListSize,
-		BaseStrategy: strategy,
+func NewHlsDatetime(hlsTime int, hlsListSize int, outputDir string, strategy *BaseCommand) *HlsDatetimeCommand {
+	return &HlsDatetimeCommand{
+		HlsTime:     hlsTime,
+		HlsListSize: hlsListSize,
+		OutPutDir:   outputDir,
+		BaseCommand: strategy,
 	}
 }
 
-func (h *HlsDatetime) SetMediaFile() {
-	output := h.OutputDir()
+func (h *HlsDatetimeCommand) SetMediaFile() {
+	output := h.OutPutDir
 	util.CheckAndMkdir(output)
 	timeout := strconv.FormatInt((5 * time.Second).Microseconds(), 10)
 	h.GetTrans().MediaFile().SetRawInputArgs([]string{
@@ -63,7 +65,7 @@ func (h *HlsDatetime) SetMediaFile() {
 	})
 }
 
-func (h *HlsDatetime) Execute() error {
+func (h *HlsDatetimeCommand) Execute() error {
 	h.SetMediaFile()
-	return h.BaseStrategy.Execute()
+	return h.BaseCommand.Execute()
 }

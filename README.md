@@ -1,18 +1,47 @@
 # 摄像头数据采集、切片处理
 
 ```go
-import log "github.com/sirupsen/logrus"
+package main
 
-log.SetLevel(log.DebugLevel)
-log.SetFormatter(&nested.Formatter{
-TimestampFormat: "2006-01-02 15:04:05",
-})
-goutil.ConfigInit("./conf.ini")
-stream := video2.GetStream("demo")
-basePath := goutil.GetSystemValue("output_base_dir")
-manager := video2.NewStreamManager(basePath, 20)
-manager.Add(stream)
-manager.Run()
+import (
+	"fmt"
+	nested "github.com/antonfisher/nested-logrus-formatter"
+	"github.com/kordar/goutil"
+	video2 "github.com/kordar/video-collection/command"
+	log "github.com/sirupsen/logrus"
+	"github.com/xfrr/goffmpeg/models"
+)
+
+func main() {
+	log.SetLevel(log.DebugLevel)
+	log.SetFormatter(&nested.Formatter{
+		TimestampFormat: "2006-01-02 15:04:05",
+	})
+	goutil.ConfigInit("./conf.ini")
+	manager := video2.NewStreamManager(20)
+	params := map[string]interface{}{
+		"progressRestartSeconds": 600,
+	}
+	ss := map[int]int64{1: 5, 2: 5}
+	callback := &video2.ProgressCallback{}
+	callback.SetBeforeFunc(func(strategy *video2.BaseCommand) {
+		log.Println("this is before func,", strategy.GetId())
+	})
+	callback.SetAfterFunc(func(strategy *video2.BaseCommand) {
+		log.Println("after func,", strategy.GetId())
+	})
+	callback.SetRunningFunc(func(progress models.Progress, command *video2.BaseCommand) {
+		log.Println(fmt.Sprintf("%+v", progress))
+	})
+	manager.Run()
+	manager.Add(video2.GetStream("video56", params, ss, callback))
+	manager.Add(video2.GetStream("video64", params, ss, callback))
+	manager.Add(video2.GetStream("video63", params, ss, callback))
+	manager.StartCheckDeath("@every 20s")
+	done := make(chan int)
+	<-done
+	//time.Sleep(10000 * time.Second)
+}
 ```
 
 ## 基于HLS点播功能的处理器

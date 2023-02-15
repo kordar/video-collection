@@ -6,7 +6,9 @@ require (
 	github.com/antonfisher/nested-logrus-formatter v1.3.1
 	github.com/etherlabsio/go-m3u8 v1.0.0
 	github.com/kordar/goutil v1.0.5
+	github.com/robfig/cron/v3 v3.0.0
 	github.com/sirupsen/logrus v1.9.0
+	github.com/spf13/cast v1.5.0
 	github.com/xfrr/goffmpeg v0.0.0-20210624103149-5ca2d3062daf
 )
 
@@ -17,9 +19,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
-	github.com/robfig/cron/v3 v3.0.0 // indirect
 	github.com/spf13/afero v1.9.2 // indirect
-	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.14.0 // indirect

@@ -1,28 +1,26 @@
-package video
+package command
 
 import (
 	"github.com/kordar/goutil"
-	strategy2 "github.com/kordar/video-collection/strategy"
 	"strings"
 )
 
-func GetStream(section string) strategy2.Strategy {
+func GetStream(section string, params map[string]interface{}, retrySs map[int]int64, callback *ProgressCallback) ICommand {
 	t := goutil.GetSectionValue(section, "type")
 	switch t {
 	case "hls_datetime":
-		return hlsDatetimeStream(section)
+		return hlsDatetimeStream(section, params, retrySs, callback)
 	default:
-		return commonStream(section)
+		return commonStream(section, params, retrySs, callback)
 	}
 }
 
-func baseConfig(section string) *strategy2.BaseStrategy {
+func baseConfig(section string, params map[string]interface{}, retrySs map[int]int64, name string) *BaseCommand {
 	id := goutil.GetSectionValue(section, "id")
 	if id == "" {
 		id = section
 	}
 	input := goutil.GetSectionValue(section, "input")
-	outputPrefix := goutil.GetSectionValue(section, "output_prefix")
 	output := goutil.GetSectionValue(section, "output")
 	retrySeconds := goutil.GetSectionValueInt(section, "retry_seconds")
 	if retrySeconds == 0 {
@@ -31,26 +29,30 @@ func baseConfig(section string) *strategy2.BaseStrategy {
 	if retrySeconds < 3 {
 		retrySeconds = 30
 	}
-	maxRetryTimes := goutil.GetSectionValueInt(section, "max_retry_times")
+	retryMaxTimes := goutil.GetSectionValueInt(section, "retry_max_times")
 
 	// 重启process，pipe网络等原因假死处理
 	restartProcessSeconds := goutil.GetSectionValueInt(section, "restart_process_seconds")
 	if restartProcessSeconds == 0 {
 		restartProcessSeconds = goutil.GetSectionValueInt("system", "restart_process_seconds")
 	}
-	return strategy2.NewBaseStrategy(id, input, output, outputPrefix, int64(retrySeconds), maxRetryTimes, int64(restartProcessSeconds))
+
+	retryConfig := NewRetryConfig(id, int64(retrySeconds), retryMaxTimes, retrySs)
+	return NewBaseCommand(id, name, input, output, params, retryConfig)
 }
 
-func hlsDatetimeStream(section string) strategy2.Strategy {
+func hlsDatetimeStream(section string, params map[string]interface{}, retrySs map[int]int64, callback *ProgressCallback) ICommand {
 	hlsTime := goutil.GetSectionValueInt(section, "hls_time")
 	hlsListSize := goutil.GetSectionValueInt(section, "hls_list_size")
-	base := baseConfig(section)
-	return strategy2.NewHlsDatetime(hlsTime, hlsListSize, base)
+	base := baseConfig(section, params, retrySs, "Hls采集")
+	base.Callback = callback
+	outputDir := goutil.GetSectionValue(section, "output_dir")
+	return NewHlsDatetime(hlsTime, hlsListSize, outputDir, base)
 }
 
-func commonStream(section string) strategy2.Strategy {
-	base := baseConfig(section)
-	base.ProcessName = "推送流"
+func commonStream(section string, params map[string]interface{}, retrySs map[int]int64, callback *ProgressCallback) ICommand {
+	base := baseConfig(section, params, retrySs, "推送流")
+	base.Callback = callback
 	// ProfileV      string // 编码质量，https://gist.github.com/jedfoster/3c0b396097783f5884fb
 	// -threads 5 -re -rtsp_transport tcp
 	input := goutil.GetSectionValue(section, "input_args")
@@ -60,5 +62,5 @@ func commonStream(section string) strategy2.Strategy {
 	output := goutil.GetSectionValue(section, "output_args")
 	outputArgs := strings.Split(output, " ")
 
-	return strategy2.NewCommonStrategy(inputArgs, outputArgs, base)
+	return NewCommonCommand(inputArgs, outputArgs, base)
 }
