@@ -114,7 +114,7 @@ func (s *StreamManager) StartCheckDeath(spec string) {
 			now := time.Now().Unix()
 			if cmd.GetProgressRestartSeconds() > 0 && now-cmd.GetProgressRefreshTime().Unix() > cmd.GetProgressRestartSeconds() {
 				log.Info("强制停止编码器，id = ", id)
-				cmd.Stop()
+				cmd.JustRestart()
 			}
 		}
 	})

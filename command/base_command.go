@@ -52,7 +52,7 @@ type ICommand interface {
 	Execute() error
 	GetId() string
 	//GetBaseDir() string
-	//SetBaseDir(dir string)
+	JustRestart()
 	GetStatus() string // 获取策略状态 exit|restart|run
 	Refresh()
 	Stop()
@@ -145,6 +145,14 @@ func (b *BaseCommand) GetId() string {
 func (b *BaseCommand) Stop() {
 	err := b.GetTrans().Stop()
 	b.retry.SetExit()
+	if err != nil {
+		log.Errorln(err)
+		return
+	}
+}
+
+func (b *BaseCommand) JustRestart() {
+	err := b.GetTrans().Stop()
 	if err != nil {
 		log.Errorln(err)
 		return
