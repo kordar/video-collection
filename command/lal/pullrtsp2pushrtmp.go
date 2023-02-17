@@ -36,7 +36,8 @@ func (p *PullRtsp2PushRtmpCommand) Execute() error {
 		/**
 		 * progress 结束后，监听Progress结束尝试设置为重启状态
 		 */
-		p.JustRestart()
+		p.RetryConfig.ListenProgressFinish()
+		nazalog.Warnf("服务(%s:%s)结束！！！", p.CommandName, p.CommandID)
 		p.Callback.AfterFunc(p.AbstractBaseCommand)
 	}()
 

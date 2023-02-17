@@ -39,7 +39,7 @@ func (b *BaseFfmpegCommand) Execute() error {
 	 * progress 结束后，监听Progress结束尝试设置为重启状态
 	 */
 	defer func() {
-		defer b.JustRestart()
+		b.RetryConfig.ListenProgressFinish()
 		nazalog.Warnf("服务(%s:%s)结束！！！", b.CommandName, b.CommandID)
 		b.Callback.AfterFunc(b.AbstractBaseCommand)
 	}()
