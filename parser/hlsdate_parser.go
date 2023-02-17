@@ -20,7 +20,7 @@ type HlsdateParser struct {
 func NewHlsdateParser(m3u8path string) *HlsdateParser {
 	playlist, err := m3u8.ReadFile(m3u8path)
 	if err != nil {
-		nazalog.Fatalln(err)
+		nazalog.Panicf("HlsdateParser, err = %+v", err)
 	}
 	return &HlsdateParser{
 		playlist: playlist,

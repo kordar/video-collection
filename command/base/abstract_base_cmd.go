@@ -30,6 +30,7 @@ func NewAbstractBaseCommand(commandID string, commandName string, input string, 
 		Params:                 params,
 		ProgressRestartSeconds: progressRestartSeconds,
 		RetryConfig:            retryConf,
+		Callback:               &ProgressCallback{},
 	}
 }
 

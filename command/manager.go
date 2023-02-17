@@ -57,7 +57,8 @@ func (s *StreamManager) start(id string) {
 
 	defer func() {
 		if r := recover(); r != nil {
-			nazalog.Error(r)
+			nazalog.Errorf("StreamManager err = %+v", r)
+			s.Stop(id)
 			// 抛出异常尝试接触id关系绑定
 			delete(s.status, id)
 			delete(s.commands, id)

@@ -18,7 +18,7 @@ func NewBaseFfmpegCommand(commandID string, commandName string, input string,
 	err := trans.Initialize(input, "")
 	// Handle error...
 	if err != nil {
-		nazalog.Fatalf("init trans err = %+v", err)
+		nazalog.Panicf("init trans err = %+v", err)
 	}
 	return &BaseFfmpegCommand{
 		AbstractBaseCommand: base.NewAbstractBaseCommand(commandID, commandName, input, output, params, retryConf),
@@ -34,6 +34,15 @@ func (b *BaseFfmpegCommand) GetTrans() *transcoder.Transcoder {
 func (b *BaseFfmpegCommand) Execute() error {
 	nazalog.Debug(b.GetTrans().GetCommand())
 	nazalog.Infof("服务(%s:%s)启动: %s -> %s", b.CommandName, b.CommandID, b.Input, b.Output)
+
+	/**
+	 * progress 结束后，监听Progress结束尝试设置为重启状态
+	 */
+	defer func() {
+		defer b.JustRestart()
+		nazalog.Warnf("服务(%s:%s)结束！！！", b.CommandName, b.CommandID)
+		b.Callback.AfterFunc(b.AbstractBaseCommand)
+	}()
 
 	b.Callback.BeforeFunc(b.AbstractBaseCommand)
 
@@ -58,12 +67,6 @@ func (b *BaseFfmpegCommand) Execute() error {
 	// This channel is used to wait for the transcoding process to end
 	err := <-done
 
-	nazalog.Warnf("服务(%s:%s)结束！！！", b.CommandName, b.CommandID)
-	b.Callback.AfterFunc(b.AbstractBaseCommand)
-	/**
-	 * progress 结束后，监听Progress结束尝试设置为重启状态
-	 */
-	b.RetryConfig.ListenProgressFinish()
 	return err
 }
 

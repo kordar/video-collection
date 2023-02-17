@@ -31,16 +31,26 @@ func (p *PullRtsp2PushRtmpCommand) Execute() error {
 		option.WriteAvTimeoutMs = util.GetValueInt(writeAvTimeoutMs, 5000)
 	})
 
+	//  TODO 未启动成功，设置状态重启，否则将停止重启
+	defer func() {
+		/**
+		 * progress 结束后，监听Progress结束尝试设置为重启状态
+		 */
+		p.JustRestart()
+		p.Callback.AfterFunc(p.AbstractBaseCommand)
+	}()
+
 	err := pushSession.Push(p.Output)
 	if err != nil {
-		nazalog.Fatalf("[%s:%s] (PullRtsp2PushRtmpCommand) -> pushSession error = %+v", p.CommandID, p.CommandName, err)
+		nazalog.Errorf("[%s:%s] (PullRtsp2PushRtmpCommand) -> pushSession error = %+v", p.CommandID, p.CommandName, err)
+		return err
 	}
 	defer pushSession.Dispose()
 
 	remuxer := remux.NewAvPacket2RtmpRemuxer().WithOnRtmpMsg(func(msg base.RtmpMsg) {
 		err = pushSession.Write(rtmp.Message2Chunks(msg.Payload, &msg.Header))
 		if err != nil {
-			nazalog.Fatalf("[%s:%s] (PullRtsp2PushRtmpCommand) -> remuxer error = %+v", p.CommandID, p.CommandName, err)
+			nazalog.Errorf("[%s:%s] (PullRtsp2PushRtmpCommand) -> remuxer error = %+v", p.CommandID, p.CommandName, err)
 		}
 	})
 	pullSession := rtsp.NewPullSession(remuxer, func(option *rtsp.PullSessionOption) {
@@ -51,7 +61,8 @@ func (p *PullRtsp2PushRtmpCommand) Execute() error {
 
 	err = pullSession.Pull(p.Input)
 	if err != nil {
-		nazalog.Fatalf("[%s:%s] PullRtsp2PushRtmpCommand -> pullSession error = %+v", p.CommandID, p.CommandName, err)
+		nazalog.Errorf("[%s:%s] PullRtsp2PushRtmpCommand -> pullSession error = %+v", p.CommandID, p.CommandName, err)
+		return err
 	}
 	defer pullSession.Dispose()
 
@@ -89,12 +100,6 @@ func (p *PullRtsp2PushRtmpCommand) Execute() error {
 	case err = <-pushSession.WaitChan():
 		nazalog.Infof("< pushSession.Wait(). err=%+v", err)
 	}
-
-	p.Callback.AfterFunc(p.AbstractBaseCommand)
-	/**
-	 * progress 结束后，监听Progress结束尝试设置为重启状态
-	 */
-	p.RetryConfig.ListenProgressFinish()
 
 	return err
 }
