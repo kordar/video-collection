@@ -1,4 +1,4 @@
-package command
+package ffmpeg
 
 import (
 	"github.com/kordar/video-collection/util"
@@ -12,15 +12,15 @@ type HlsDatetimeCommand struct {
 	OutPutDir   string
 	HlsTime     int // 视频采集的间隔，单位秒
 	HlsListSize int // 点播清单的最大分片数量
-	*BaseCommand
+	*BaseFfmpegCommand
 }
 
-func NewHlsDatetime(hlsTime int, hlsListSize int, outputDir string, strategy *BaseCommand) *HlsDatetimeCommand {
+func NewFfmpegHlsDatetime(hlsTime int, hlsListSize int, outputDir string, strategy *BaseFfmpegCommand) *HlsDatetimeCommand {
 	return &HlsDatetimeCommand{
-		HlsTime:     hlsTime,
-		HlsListSize: hlsListSize,
-		OutPutDir:   outputDir,
-		BaseCommand: strategy,
+		HlsTime:           hlsTime,
+		HlsListSize:       hlsListSize,
+		OutPutDir:         outputDir,
+		BaseFfmpegCommand: strategy,
 	}
 }
 
@@ -67,5 +67,5 @@ func (h *HlsDatetimeCommand) SetMediaFile() {
 
 func (h *HlsDatetimeCommand) Execute() error {
 	h.SetMediaFile()
-	return h.BaseCommand.Execute()
+	return h.BaseFfmpegCommand.Execute()
 }

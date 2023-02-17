@@ -3,11 +3,11 @@ module github.com/kordar/video-collection
 go 1.18
 
 require (
-	github.com/antonfisher/nested-logrus-formatter v1.3.1
 	github.com/etherlabsio/go-m3u8 v1.0.0
 	github.com/kordar/goutil v1.0.5
+	github.com/q191201771/lal v0.33.0
+	github.com/q191201771/naza v0.30.8
 	github.com/robfig/cron/v3 v3.0.0
-	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cast v1.5.0
 	github.com/xfrr/goffmpeg v0.0.0-20210624103149-5ca2d3062daf
 )

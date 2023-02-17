@@ -1,17 +1,17 @@
-package command
+package ffmpeg
 
 // CommonCommand 公共策略
 type CommonCommand struct {
 	RawInputArgs  []string
 	RawOutputArgs []string
-	*BaseCommand
+	*BaseFfmpegCommand
 }
 
-func NewCommonCommand(rawInputArgs []string, rawOutputArgs []string, strategy *BaseCommand) *CommonCommand {
+func NewFfmpegCommonCommand(rawInputArgs []string, rawOutputArgs []string, strategy *BaseFfmpegCommand) *CommonCommand {
 	return &CommonCommand{
-		RawInputArgs:  rawInputArgs,
-		RawOutputArgs: rawOutputArgs,
-		BaseCommand:   strategy,
+		RawInputArgs:      rawInputArgs,
+		RawOutputArgs:     rawOutputArgs,
+		BaseFfmpegCommand: strategy,
 	}
 }
 
@@ -23,5 +23,5 @@ func (r *CommonCommand) SetMediaFile() {
 
 func (r *CommonCommand) Execute() error {
 	r.SetMediaFile()
-	return r.BaseCommand.Execute()
+	return r.BaseFfmpegCommand.Execute()
 }

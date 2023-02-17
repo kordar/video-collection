@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/etherlabsio/go-m3u8/m3u8"
 	"github.com/kordar/video-collection/util"
-	log "github.com/sirupsen/logrus"
+	"github.com/q191201771/naza/pkg/nazalog"
 	"path"
 	"time"
 )
@@ -20,7 +20,7 @@ type HlsdateParser struct {
 func NewHlsdateParser(m3u8path string) *HlsdateParser {
 	playlist, err := m3u8.ReadFile(m3u8path)
 	if err != nil {
-		log.Fatalln(err)
+		nazalog.Fatalln(err)
 	}
 	return &HlsdateParser{
 		playlist: playlist,
@@ -116,7 +116,7 @@ func (p HlsdateParser) Parser(start string, end string) ([]util.St, error) {
 	ss := path.Base(segofstart.Segment)[8:22]
 	ee := path.Base(segofend.Segment)[8:22]
 
-	log.Println(ss, ee)
+	nazalog.Println(ss, ee)
 
 	sts := make([]util.St, 0)
 	for _, item := range p.playlist.Segments() {
