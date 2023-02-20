@@ -71,8 +71,11 @@ func (b *BaseFfmpegCommand) Execute() error {
 }
 
 func (b *BaseFfmpegCommand) Stop() {
-	err := b.GetTrans().Process().Process.Kill()
 	b.RetryConfig.SetExit()
+	if b.GetTrans().Process() == nil {
+		return
+	}
+	err := b.GetTrans().Process().Process.Kill()
 	if err != nil {
 		nazalog.Errorf("[%s] ffmpeg Stop, err = %+v", b.CommandID, err)
 		return
@@ -80,7 +83,11 @@ func (b *BaseFfmpegCommand) Stop() {
 }
 
 func (b *BaseFfmpegCommand) JustRestart() {
-	err := b.GetTrans().Stop()
+	//err := b.GetTrans().Stop()
+	if b.GetTrans().Process() == nil {
+		return
+	}
+	err := b.GetTrans().Process().Process.Kill()
 	if err != nil {
 		nazalog.Errorf("[%s] ffmpeg JustRestart, err = %+v", b.CommandID, err)
 		return
