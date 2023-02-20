@@ -71,7 +71,7 @@ func (b *BaseFfmpegCommand) Execute() error {
 }
 
 func (b *BaseFfmpegCommand) Stop() {
-	err := b.GetTrans().Stop()
+	err := b.GetTrans().Process().Process.Kill()
 	b.RetryConfig.SetExit()
 	if err != nil {
 		nazalog.Errorf("[%s] ffmpeg Stop, err = %+v", b.CommandID, err)
