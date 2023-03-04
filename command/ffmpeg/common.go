@@ -17,7 +17,10 @@ func NewFfmpegCommonCommand(rawInputArgs []string, rawOutputArgs []string, strat
 
 func (r *CommonCommand) SetMediaFile() {
 	r.GetTrans().MediaFile().SetRawInputArgs(r.RawInputArgs)
-	r.GetTrans().MediaFile().SetOutputPath(r.Output)
+	// TODO pipe输出，自己进行维护
+	if r.Output == "-" {
+		r.GetTrans().MediaFile().SetOutputPath("")
+	}
 	r.GetTrans().MediaFile().SetRawOutputArgs(r.RawOutputArgs)
 }
 
