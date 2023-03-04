@@ -6,6 +6,18 @@ type ProgressCallback struct {
 	runningFunc func(models.Progress, *AbstractBaseCommand) // 运行中回调
 	beforeFunc  func(strategy *AbstractBaseCommand)         // 执行前回调
 	afterFunc   func(strategy *AbstractBaseCommand)         // 执行后回调
+	pipeFunc    func(buf []byte)
+}
+
+// PipeFunc 执行通道回调
+func (p *ProgressCallback) PipeFunc(buf []byte) {
+	if p.pipeFunc != nil {
+		p.pipeFunc(buf)
+	}
+}
+
+func (p *ProgressCallback) SetPipeFunc(pipeFunc func(buf []byte)) {
+	p.pipeFunc = pipeFunc
 }
 
 // RunningFunc 执行中回调

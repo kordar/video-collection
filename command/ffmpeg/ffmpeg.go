@@ -3,7 +3,9 @@ package ffmpeg
 import (
 	"github.com/kordar/video-collection/command/base"
 	"github.com/q191201771/naza/pkg/nazalog"
+	"github.com/spf13/cast"
 	"github.com/xfrr/goffmpeg/transcoder"
+	"io"
 	"time"
 )
 
@@ -46,6 +48,20 @@ func (b *BaseFfmpegCommand) Execute() error {
 
 	b.Callback.BeforeFunc(b.AbstractBaseCommand)
 
+	opipe := cast.ToString(b.Params["output_pipe"])
+	if opipe == "image2pipe" {
+		pip, err := b.GetTrans().CreateOutputPipe("image2pipe")
+		go func() {
+			bufSize := cast.ToInt(b.Params["buf_size"])
+			defer pip.Close()
+			b.PipRead(pip, bufSize)
+		}()
+
+		done := b.GetTrans().Run(false)
+		err = <-done
+		return err
+	}
+
 	// Start transcoder process without checking progress
 	done := b.GetTrans().Run(true)
 	b.ProgressRefreshTime = time.Now()
@@ -68,6 +84,22 @@ func (b *BaseFfmpegCommand) Execute() error {
 	err := <-done
 
 	return err
+}
+
+func (b *BaseFfmpegCommand) PipRead(reader *io.PipeReader, bufSize int) {
+	if bufSize == 0 {
+		bufSize = 128
+	}
+	buf := make([]byte, bufSize)
+	nazalog.Info("接收端>>>>>>>>>>>>>>>>开始接收")
+	for {
+		_, err := reader.Read(buf)
+		if err != nil {
+			nazalog.Errorf("pipRead, err = %v", err)
+			return
+		}
+		b.Callback.PipeFunc(buf)
+	}
 }
 
 func (b *BaseFfmpegCommand) Stop() {
