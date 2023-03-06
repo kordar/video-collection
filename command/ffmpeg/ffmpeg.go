@@ -51,7 +51,7 @@ func (b *BaseFfmpegCommand) Execute() error {
 	opipe := cast.ToString(b.Params["output_pipe"])
 	if opipe == "image2pipe" {
 		pip, err := b.GetTrans().CreateOutputPipe("image2pipe")
-		defer pip.Close()
+		b.GetTrans().Stop()
 		if err != nil {
 			return err
 		}
