@@ -51,12 +51,12 @@ func (b *BaseFfmpegCommand) Execute() error {
 	opipe := cast.ToString(b.Params["output_pipe"])
 	if opipe == "image2pipe" {
 		pip, err := b.GetTrans().CreateOutputPipe("image2pipe")
+		defer pip.Close()
 		if err != nil {
 			return err
 		}
 		go func() {
 			bufSize := cast.ToInt(b.Params["buf_size"])
-			defer pip.Close()
 			b.PipRead(pip, bufSize)
 		}()
 
