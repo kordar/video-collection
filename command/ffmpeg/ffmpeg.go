@@ -101,6 +101,7 @@ func (b *BaseFfmpegCommand) PipRead(reader *io.PipeReader, bufSize int) {
 			nazalog.Errorf("pipRead, err = %v", err)
 			return
 		}
+		b.ProgressRefreshTime = time.Now()
 		b.Callback.PipeFunc(buf)
 	}
 }
