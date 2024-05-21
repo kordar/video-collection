@@ -1,8 +1,8 @@
 package command
 
 import (
+	logger "github.com/kordar/gologger"
 	"github.com/robfig/cron/v3"
-	log "github.com/sirupsen/logrus"
 	"sync"
 	"time"
 )
@@ -64,7 +64,7 @@ func (s *StreamManager) start(id string) {
 
 	defer func() {
 		if r := recover(); r != nil {
-			log.Errorln(r)
+			logger.Error(r)
 			// 抛出异常尝试接触id关系绑定
 			delete(s.status, id)
 			delete(s.commands, id)
@@ -75,18 +75,18 @@ func (s *StreamManager) start(id string) {
 	stream := s.commands[id]
 	err := stream.Execute()
 	if err != nil {
-		log.Errorln(err)
+		logger.Error(err)
 	}
 	// 启动失败或结束后，进行重启操作
 	status := stream.GetStatus()
 	if status == "restart" {
-		log.Infof("************ 尝试重启服务, Id = %s **************", id)
+		logger.Infof("************ 尝试重启服务, Id = %s **************", id)
 		stream.Refresh()
 		s.status[id] = StartStatusReady
 		s.buffer <- id
 	}
 	if status == "exit" {
-		log.Infof("************ 退出服务, Id = %s **************", id)
+		logger.Infof("************ 退出服务, Id = %s **************", id)
 		delete(s.status, id)
 		delete(s.commands, id)
 	}
@@ -100,7 +100,7 @@ func (s *StreamManager) Stop(id string) {
 
 	defer func() {
 		if r := recover(); r != nil {
-			log.Errorln(r)
+			logger.Error(r)
 		}
 	}()
 
@@ -113,7 +113,7 @@ func (s *StreamManager) StartCheckDeath(spec string) {
 		for id, cmd := range s.commands {
 			now := time.Now().Unix()
 			if cmd.GetProgressRestartSeconds() > 0 && now-cmd.GetProgressRefreshTime().Unix() > cmd.GetProgressRestartSeconds() {
-				log.Info("强制停止编码器，id = ", id)
+				logger.Info("强制停止编码器，id = ", id)
 				cmd.JustRestart()
 			}
 		}

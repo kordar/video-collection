@@ -1,8 +1,7 @@
 package command
 
 import (
-	"fmt"
-	log "github.com/sirupsen/logrus"
+	logger "github.com/kordar/gologger"
 	"github.com/spf13/cast"
 	"github.com/xfrr/goffmpeg/models"
 	"github.com/xfrr/goffmpeg/transcoder"
@@ -83,7 +82,7 @@ func NewBaseCommand(commandID string, commandName string, input string, output s
 	err := trans.Initialize(input, "")
 	// Handle error...
 	if err != nil {
-		log.Fatalln(err)
+		logger.Fatal(err)
 	}
 	progressRestartSeconds := cast.ToInt64(params["progressRestartSeconds"])
 	return &BaseCommand{CommandID: commandID,
@@ -103,8 +102,8 @@ func (b *BaseCommand) GetTrans() *transcoder.Transcoder {
 }
 
 func (b *BaseCommand) Execute() error {
-	log.Debugln(b.GetTrans().GetCommand())
-	log.Infoln(fmt.Sprintf("服务(%s:%s)启动: %s -> %s", b.CommandName, b.CommandID, b.Input, b.Output))
+	logger.Debug(b.GetTrans().GetCommand())
+	logger.Infof("服务(%s:%s)启动: %s -> %s", b.CommandName, b.CommandID, b.Input, b.Output)
 
 	b.Callback.BeforeFunc(b)
 
@@ -119,17 +118,17 @@ func (b *BaseCommand) Execute() error {
 		// 重试策略执行
 		b.retry.ListenProgressRunning(b)
 		if progress.FramesProcessed != "" {
-			log.Infof("服务(%s:%s)成功, Process = %+v", b.CommandName, b.CommandID, progress)
+			logger.Infof("服务(%s:%s)成功, Process = %+v", b.CommandName, b.CommandID, progress)
 			b.Callback.RunningFunc(progress, b)
 		} else {
-			log.Warningf("服务(%s:%s)失败, Process = %+v", b.CommandName, b.CommandID, progress)
+			logger.Warnf("服务(%s:%s)失败, Process = %+v", b.CommandName, b.CommandID, progress)
 		}
 	}
 
 	// This channel is used to wait for the transcoding process to end
 	err := <-done
 
-	log.Warningln(fmt.Sprintf("服务(%s:%s)结束！！！", b.CommandName, b.CommandID))
+	logger.Warnf("服务(%s:%s)结束！！！", b.CommandName, b.CommandID)
 	b.Callback.AfterFunc(b)
 	/**
 	 * progress 结束后，监听Progress结束尝试设置为重启状态
@@ -146,7 +145,7 @@ func (b *BaseCommand) Stop() {
 	err := b.GetTrans().Stop()
 	b.retry.SetExit()
 	if err != nil {
-		log.Errorln(err)
+		logger.Error(err)
 		return
 	}
 }
@@ -154,7 +153,7 @@ func (b *BaseCommand) Stop() {
 func (b *BaseCommand) JustRestart() {
 	err := b.GetTrans().Stop()
 	if err != nil {
-		log.Errorln(err)
+		logger.Error(err)
 		return
 	}
 }
