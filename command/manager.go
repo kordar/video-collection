@@ -1,8 +1,8 @@
 package command
 
 import (
+	logger "github.com/kordar/gologger"
 	basecmd "github.com/kordar/video-collection/command/base"
-	"github.com/q191201771/naza/pkg/nazalog"
 	"github.com/robfig/cron/v3"
 	"sync"
 	"time"
@@ -57,7 +57,7 @@ func (s *StreamManager) start(id string) {
 
 	defer func() {
 		if r := recover(); r != nil {
-			nazalog.Errorf("StreamManager err = %+v", r)
+			logger.Errorf("StreamManager err = %+v", r)
 			s.Stop(id)
 			// 抛出异常尝试接触id关系绑定
 			delete(s.status, id)
@@ -69,18 +69,18 @@ func (s *StreamManager) start(id string) {
 	stream := s.commands[id]
 	err := stream.Execute()
 	if err != nil {
-		nazalog.Error(err)
+		logger.Error(err)
 	}
 	// 启动失败或结束后，进行重启操作
 	status := stream.GetStatus()
 	if status == basecmd.RetryRestart {
-		nazalog.Infof("************ 尝试重启服务, Id = %s **************", id)
+		logger.Infof("************ 尝试重启服务, Id = %s **************", id)
 		stream.Refresh()
 		s.status[id] = basecmd.MgrReady
 		s.buffer <- id
 	}
 	if status == basecmd.RetryExit {
-		nazalog.Infof("************ 退出服务, Id = %s **************", id)
+		logger.Infof("************ 退出服务, Id = %s **************", id)
 		delete(s.status, id)
 		delete(s.commands, id)
 	}
@@ -94,7 +94,7 @@ func (s *StreamManager) Stop(id string) {
 
 	defer func() {
 		if r := recover(); r != nil {
-			nazalog.Error(r)
+			logger.Error(r)
 		}
 	}()
 
@@ -107,7 +107,7 @@ func (s *StreamManager) StartCheckDeath(spec string) {
 		for id, cmd := range s.commands {
 			now := time.Now().Unix()
 			if cmd.GetProgressRestartSeconds() > 0 && now-cmd.GetProgressRefreshTime().Unix() > cmd.GetProgressRestartSeconds() {
-				nazalog.Info("强制停止编码器，id = ", id)
+				logger.Info("强制停止编码器，id = ", id)
 				cmd.JustRestart()
 			}
 		}

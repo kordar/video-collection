@@ -1,13 +1,13 @@
 package lal
 
 import (
+	logger "github.com/kordar/gologger"
 	base2 "github.com/kordar/video-collection/command/base"
 	"github.com/kordar/video-collection/util"
 	"github.com/q191201771/lal/pkg/base"
 	"github.com/q191201771/lal/pkg/remux"
 	"github.com/q191201771/lal/pkg/rtmp"
 	"github.com/q191201771/lal/pkg/rtsp"
-	"github.com/q191201771/naza/pkg/nazalog"
 	"github.com/spf13/cast"
 	"time"
 )
@@ -37,13 +37,13 @@ func (p *PullRtsp2PushRtmpCommand) Execute() error {
 		 * progress 结束后，监听Progress结束尝试设置为重启状态
 		 */
 		p.RetryConfig.ListenProgressFinish()
-		nazalog.Warnf("服务(%s:%s)结束！！！", p.CommandName, p.CommandID)
+		logger.Warnf("服务(%s:%s)结束！！！", p.CommandName, p.CommandID)
 		p.Callback.AfterFunc(p.AbstractBaseCommand)
 	}()
 
 	err := pushSession.Push(p.Output)
 	if err != nil {
-		nazalog.Errorf("[%s:%s] (PullRtsp2PushRtmpCommand) -> pushSession error = %+v", p.CommandID, p.CommandName, err)
+		logger.Errorf("[%s:%s] (PullRtsp2PushRtmpCommand) -> pushSession error = %+v", p.CommandID, p.CommandName, err)
 		return err
 	}
 	defer pushSession.Dispose()
@@ -51,7 +51,7 @@ func (p *PullRtsp2PushRtmpCommand) Execute() error {
 	remuxer := remux.NewAvPacket2RtmpRemuxer().WithOnRtmpMsg(func(msg base.RtmpMsg) {
 		err = pushSession.Write(rtmp.Message2Chunks(msg.Payload, &msg.Header))
 		if err != nil {
-			nazalog.Errorf("[%s:%s] (PullRtsp2PushRtmpCommand) -> remuxer error = %+v", p.CommandID, p.CommandName, err)
+			logger.Errorf("[%s:%s] (PullRtsp2PushRtmpCommand) -> remuxer error = %+v", p.CommandID, p.CommandName, err)
 		}
 	})
 	pullSession := rtsp.NewPullSession(remuxer, func(option *rtsp.PullSessionOption) {
@@ -62,7 +62,7 @@ func (p *PullRtsp2PushRtmpCommand) Execute() error {
 
 	err = pullSession.Pull(p.Input)
 	if err != nil {
-		nazalog.Errorf("[%s:%s] PullRtsp2PushRtmpCommand -> pullSession error = %+v", p.CommandID, p.CommandName, err)
+		logger.Errorf("[%s:%s] PullRtsp2PushRtmpCommand -> pullSession error = %+v", p.CommandID, p.CommandName, err)
 		return err
 	}
 	defer pullSession.Dispose()
@@ -90,16 +90,16 @@ func (p *PullRtsp2PushRtmpCommand) Execute() error {
 			pullStat := pullSession.GetStat()
 			pushSession.UpdateStat(1)
 			pushStat := pushSession.GetStat()
-			nazalog.Infof("stat. pull=%+v, push=%+v", pullStat, pushStat)
+			logger.Infof("stat. pull=%+v, push=%+v", pullStat, pushStat)
 			time.Sleep(wait)
 		}
 	}()
 
 	select {
 	case err = <-pullSession.WaitChan():
-		nazalog.Infof("< pullSession.Wait(). err=%+v", err)
+		logger.Infof("< pullSession.Wait(). err=%+v", err)
 	case err = <-pushSession.WaitChan():
-		nazalog.Infof("< pushSession.Wait(). err=%+v", err)
+		logger.Infof("< pushSession.Wait(). err=%+v", err)
 	}
 
 	return err

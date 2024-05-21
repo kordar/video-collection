@@ -1,17 +1,17 @@
 package parser
 
 import (
-	"github.com/q191201771/naza/pkg/nazalog"
+	logger "github.com/kordar/gologger"
 	"testing"
 )
 
 func TestHlsdateParser_Parser(t *testing.T) {
 	parser := NewHlsdateParser("/Users/mac/Movies/ddd/stream.m3u8")
 	sts, err := parser.Parser("20230103095944", "20230103120044")
-	nazalog.Println(err)
+	logger.Info(err)
 	if err == nil {
 		for _, st := range sts {
-			nazalog.Printf("%+v", st)
+			logger.Infof("%+v", st)
 		}
 	}
 }

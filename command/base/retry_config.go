@@ -1,7 +1,7 @@
 package base
 
 import (
-	"github.com/q191201771/naza/pkg/nazalog"
+	logger "github.com/kordar/gologger"
 	"time"
 )
 
@@ -92,7 +92,7 @@ func (r *RetryConfig) GetStatus2() ProgressState {
 	}
 
 	seconds := time.Duration(r.RetrySeconds-s) * time.Second
-	nazalog.Infof("服务(%s)重启倒计时(%v)秒, 重试次数=%v次", r.RetryId, seconds+time.Duration(r.mseconds)*time.Second, r.times+1)
+	logger.Infof("服务(%s)重启倒计时(%v)秒, 重试次数=%v次", r.RetryId, seconds+time.Duration(r.mseconds)*time.Second, r.times+1)
 	<-time.After(seconds + time.Duration(r.mseconds)*time.Second)
 
 	// TODO 等待结束期间如果被设置为结束状态，则等待完成后立即结束程序。
