@@ -44,7 +44,7 @@ type ConfigurationVO struct {
 	FFmpegPipeBuffSize  int          `json:"ffmpeg_pipe_buff_size"`
 }
 
-func (vo *ConfigurationVO) Load(configuration Configuration) {
+func (vo *ConfigurationVO) Load(configuration *Configuration) {
 	vo.Name = configuration.Name
 	vo.Input = configuration.Input
 	vo.InputLabel = configuration.Input.String()
@@ -58,7 +58,9 @@ func (vo *ConfigurationVO) Load(configuration Configuration) {
 	vo.RetryStatusLabel = configuration.RetryStatus.String()
 	vo.ProgressStatus = configuration.ProgressStatus
 	vo.ProgressStatusLabel = configuration.ProgressStatus.String()
-	vo.Err = configuration.Err.Error()
+	if configuration.Err != nil {
+		vo.Err = configuration.Err.Error()
+	}
 	vo.FFmpegPipeBuffSize = configuration.FFmpegPipeBuffSize
 	vo.FFmpegInputPath = configuration.FFmpegInputPath
 	vo.FFmpegOutputPath = configuration.FFmpegOutputPath
