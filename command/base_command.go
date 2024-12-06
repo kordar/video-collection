@@ -107,7 +107,7 @@ func (b *BaseCommand) Execute() error {
 
 	b.Callback.BeforeFunc(b)
 
-	// Start transcoder process without checking progress
+	// Run transcoder process without checking progress
 	done := b.GetTrans().Run(true)
 	b.ProgressRefreshTime = time.Now()
 
