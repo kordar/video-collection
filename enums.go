@@ -31,3 +31,18 @@ const (
 func (output OutputFormat) String() string {
 	return [...]string{"image2pipe"}[output]
 }
+
+type Status int
+
+const (
+	StartStatusReady Status = iota
+	StartStatusRunning
+	StartStatusFinish
+	RetryStatusReady
+	RetryStatusFinish
+	RetryStatusExit
+)
+
+func (status Status) String() string {
+	return [...]string{"start-ready", "start-running", "start-finish", "retry-ready", "retry-finish", "retry-exit"}[status]
+}
